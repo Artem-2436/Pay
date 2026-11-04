@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>Xcortex | POS Terminal</title>
+<title>Xcortex | POS Terminal Pro</title>
 <style>
 :root{--bg:#0f1115;--card:#1a1d23;--border:#2d3139;--acc:#0fb3a6;--danger:#ff5a2c;--txt:#fff;--mut:#8b9bb4}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
@@ -23,8 +23,10 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-di
 .pay-card{background:linear-gradient(145deg,#1e2229,#15181e);border:1px solid var(--border);border-radius:20px;padding:25px;text-align:center;margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
 .amount-label{color:var(--mut);font-size:.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
 .amount-input{font-size:3rem;background:transparent;border:none;color:var(--txt);text-align:center;width:100%;outline:none;font-weight:bold;font-family:monospace;margin-bottom:15px}
-.btn-pay{width:100%;padding:18px;background:linear-gradient(135deg,var(--acc),#00c6ff);border:none;border-radius:14px;color:#000;font-weight:800;font-size:1.1rem;cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:1px;box-shadow:0 5px 15px rgba(15,179,166,.3)}
-.btn-pay:active{transform:scale(.98)}
+.btn-pay{width:100%;padding:18px;background:linear-gradient(135deg,var(--acc),#00c6ff);border:none;border-radius:14px;color:#000;font-weight:800;font-size:1.1rem;cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:1px;box-shadow:0 5px 15px rgba(15,179,166,.3);margin-bottom:10px}
+.btn-alt{width:100%;padding:14px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--mut);font-weight:600;cursor:pointer;transition:.2s;font-size:.95rem}
+.btn-alt:hover{border-color:var(--acc);color:var(--acc)}
+.btn-pay:active,.btn-alt:active{transform:scale(.98)}
 
 /* Lists */
 .section-title{margin:20px 0 10px;font-size:1rem;color:var(--mut);display:flex;justify-content:space-between;align-items:center}
@@ -36,10 +38,11 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-di
 .amt-pos{color:var(--acc)}.amt-neg{color:var(--danger)}
 
 /* Admin Actions */
-.u-actions{display:flex;gap:8px;margin-top:10px}
-.u-btn{flex:1;padding:8px;border:none;border-radius:8px;font-size:.8rem;cursor:pointer;font-weight:600;transition:.2s}
+.u-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.u-btn{flex:1;min-width:45%;padding:8px;border:none;border-radius:8px;font-size:.8rem;cursor:pointer;font-weight:600;transition:.2s;text-align:center}
 .btn-bind{background:rgba(255,90,44,.1);color:var(--danger);border:1px solid rgba(255,90,44,.3)}
 .btn-add{background:rgba(15,179,166,.1);color:var(--acc);border:1px solid rgba(15,179,166,.3)}
+.btn-del{background:rgba(255,255,255,.05);color:var(--mut);border:1px solid var(--border)}
 .u-btn:active{transform:scale(.95)}
 
 /* FAB */
@@ -49,7 +52,7 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-di
 /* Modals */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;display:none;justify-content:center;align-items:center;backdrop-filter:blur(8px);padding:20px}
 .modal-overlay.show{display:flex}
-.m-box{background:var(--card);border:1px solid var(--border);padding:25px;border-radius:20px;width:100%;max-width:350px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.5);animation:popIn .3s cubic-bezier(.175,.885,.32,1.275)}
+.m-box{background:var(--card);border:1px solid var(--border);padding:25px;border-radius:20px;width:100%;max-width:350px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.5);animation:popIn .3s cubic-bezier(.175,.885,.32,1.275);max-height:90vh;overflow-y:auto}
 @keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
 .spinner{width:50px;height:50px;border:4px solid var(--border);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -60,17 +63,17 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-di
 .m-btn{width:100%;padding:14px;border:none;border-radius:10px;font-weight:700;cursor:pointer;margin-top:5px;font-size:1rem;transition:.2s}
 .m-btn-pri{background:var(--acc);color:#000}
 .m-btn-sec{background:transparent;border:1px solid var(--border);color:var(--mut)}
-.m-btn-danger{background:var(--danger);color:#fff}
 .icon-big{font-size:4rem;margin-bottom:15px;display:block}
 .icon-success{color:var(--acc)}
 .icon-error{color:var(--danger)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 </style>
 </head>
 <body>
 
 <div class="header">
     <div class="logo">XCORTEX POS</div>
-    <div style="font-size:.8rem;color:var(--mut)">Secure NFC</div>
+    <div style="font-size:.8rem;color:var(--mut)">Pro v2.0</div>
 </div>
 
 <div class="tabs">
@@ -83,7 +86,16 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-di
     <div class="pay-card">
         <div class="amount-label">Сумма к оплате</div>
         <input type="number" id="pay-amount" class="amount-input" placeholder="0.00" inputmode="decimal">
-        <button class="btn-pay" onclick="startPayment()">Приложить карту</button>
+        
+        <!-- Primary Action -->
+        <button class="btn-pay" onclick="startPaymentByCard()">Приложить карту</button>
+        
+        <!-- Secondary Actions -->
+        <div class="grid-2">
+            <button class="btn-alt" onclick="startPaymentByID()">🆔 По ID</button>
+            <button class="btn-alt" onclick="openTransferModal()">↔ Перевести</button>
+        </div>
+        <button class="btn-alt" style="margin-top:10px" onclick="startFindClient()">🔍 Найти клиента</button>
     </div>
     
     <div class="section-title">История операций</div>
@@ -96,9 +108,10 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-di
     <ul id="user-list" style="list-style:none"></ul>
 </div>
 
-<button class="fab" onclick="openAddUserModal()">+</button>
+<button class="fab" onclick="openAddUserMenu()">+</button>
 
 <!-- MODALS -->
+<!-- 1. Scan Modal -->
 <div class="modal-overlay" id="modal-scan">
     <div class="m-box">
         <div class="spinner"></div>
@@ -108,6 +121,7 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-di
     </div>
 </div>
 
+<!-- 2. Result Modal -->
 <div class="modal-overlay" id="modal-result">
     <div class="m-box">
         <span id="res-icon" class="icon-big icon-success">✅</span>
@@ -117,26 +131,64 @@ body{background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-di
     </div>
 </div>
 
+<!-- 3. Add User Menu (Choice) -->
+<div class="modal-overlay" id="modal-add-choice">
+    <div class="m-box">
+        <div class="m-title">Добавить клиента</div>
+        <button class="m-btn m-btn-pri" onclick="openAddUserForm(true)">🏷 С картой (NFC)</button>
+        <button class="m-btn m-btn-sec" style="margin-top:10px" onclick="openAddUserForm(false)">👤 Без карты (Admin)</button>
+        <button class="m-btn m-btn-sec" style="margin-top:10px;border:none;color:var(--mut)" onclick="document.getElementById('modal-add-choice').classList.remove('show')">Отмена</button>
+    </div>
+</div>
+
+<!-- 4. User Form -->
 <div class="modal-overlay" id="modal-user-form">
     <div class="m-box">
-        <div class="m-title">Новый клиент</div>
+        <div class="m-title" id="uf-title">Новый клиент</div>
         <input type="text" id="uf-name" class="m-input" placeholder="ФИО клиента">
+        <input type="text" id="uf-id" class="m-input" placeholder="ID (авто-генерация если пусто)">
         <input type="number" id="uf-balance" class="m-input" placeholder="Начальный баланс" value="0">
-        <button class="m-btn m-btn-pri" onclick="saveNewUser()">Сохранить и привязать</button>
+        <button class="m-btn m-btn-pri" onclick="saveNewUser()">Сохранить</button>
         <button class="m-btn m-btn-sec" onclick="document.getElementById('modal-user-form').classList.remove('show')">Отмена</button>
     </div>
 </div>
 
-<script>
-// --- STATE ---
-let users = JSON.parse(localStorage.getItem('xc_users')) || [];
-let transactions = JSON.parse(localStorage.getItem('xc_tx')) || [];
-let currentMode = 'idle'; // idle, payment, bind
+<!-- 5. Transfer Modal -->
+<div class="modal-overlay" id="modal-transfer">
+    <div class="m-box">
+        <div class="m-title">Перевод средств</div>
+        <input type="text" id="tr-from-id" class="m-input" placeholder="ID Отправителя">
+        <input type="text" id="tr-to-id" class="m-input" placeholder="ID Получателя">
+        <input type="number" id="tr-amount" class="m-input" placeholder="Сумма перевода">
+        <button class="m-btn m-btn-pri" onclick="executeTransfer()">Перевести</button>
+        <button class="m-btn m-btn-sec" onclick="document.getElementById('modal-transfer').classList.remove('show')">Отмена</button>
+    </div>
+</div>
+
+<!-- 6. Edit Client Modal (For Find Function) -->
+<div class="modal-overlay" id="modal-edit-client">
+    <div class="m-box">
+        <div class="m-title">Редактирование</div>
+        <small style="color:var(--mut);display:block;margin-bottom:10px">UID: <span id="ec-uid-display"></span></small>
+        <input type="text" id="ec-name" class="m-input" placeholder="ФИО">
+        <input type="text" id="ec-id" class="m-input" placeholder="ID Клиента">
+        <input type="number" id="ec-balance" class="m-input" placeholder="Баланс">
+        <button class="m-btn m-btn-pri" onclick="saveEditedClient()">Сохранить изменения</button>
+        <button class="m-btn m-btn-sec" onclick="document.getElementById('modal-edit-client').classList.remove('show')">Отмена</button>
+    </div>
+</div>
+
+<script src="part2.js">
+    // --- STATE ---
+let users = JSON.parse(localStorage.getItem('xc_users_v2')) || [];
+let transactions = JSON.parse(localStorage.getItem('xc_tx_v2')) || [];
+let currentMode = 'idle'; // idle, pay_card, pay_id, bind_new, rebind, find_edit
 let pendingUserId = null;
 let pendingAmount = 0;
 let reader = null;
 let audioCtx = null;
-let isProcessing = false; // НОВЫЙ ФЛАГ ДЛЯ ЗАЩИТЫ ОТ ДУБЛЕЙ
+let isProcessing = false;
+let addWithNfc = true; // Flag for admin mode
 
 // --- INIT ---
 window.onload = () => {
@@ -145,8 +197,8 @@ window.onload = () => {
 };
 
 function saveDB() {
-    localStorage.setItem('xc_users', JSON.stringify(users));
-    localStorage.setItem('xc_tx', JSON.stringify(transactions));
+    localStorage.setItem('xc_users_v2', JSON.stringify(users));
+    localStorage.setItem('xc_tx_v2', JSON.stringify(transactions));
     renderUsers();
     renderTransactions();
 }
@@ -155,7 +207,6 @@ function saveDB() {
 function playSuccessSound() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const t = audioCtx.currentTime;
-    
     const osc1 = audioCtx.createOscillator();
     const gain1 = audioCtx.createGain();
     osc1.type = 'sine';
@@ -167,17 +218,6 @@ function playSuccessSound() {
     gain1.connect(audioCtx.destination);
     osc1.start(t);
     osc1.stop(t + 0.3);
-
-    const osc2 = audioCtx.createOscillator();
-    const gain2 = audioCtx.createGain();
-    osc2.type = 'triangle';
-    osc2.frequency.setValueAtTime(1320, t + 0.05); 
-    gain2.gain.setValueAtTime(0.1, t + 0.05);
-    gain2.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
-    osc2.connect(gain2);
-    gain2.connect(audioCtx.destination);
-    osc2.start(t + 0.05);
-    osc2.stop(t + 0.4);
 }
 
 function playErrorSound() {
@@ -194,6 +234,24 @@ function playErrorSound() {
     gain.connect(audioCtx.destination);
     osc.start(t);
     osc.stop(t + 0.3);
+}
+
+// --- HELPERS ---
+function generateUniqueId() {
+    let id;
+    do {
+        id = Math.floor(100000 + Math.random() * 900000).toString();
+    } while (users.some(u => u.id === id));
+    return id;
+}
+
+function getUserByIdentifier(identifier) {
+    // Search by custom ID first, then fallback to internal UUID if needed, but spec says "identifier"
+    return users.find(u => u.id === identifier);
+}
+
+function getUserByUid(uid) {
+    return users.find(u => u.uid === uid);
 }
 
 // --- UI NAVIGATION ---
@@ -229,16 +287,21 @@ function renderUsers() {
         li.style.alignItems = 'stretch';
         
         const balColor = u.balance > 0 ? 'var(--acc)' : 'var(--danger)';
+        const hasUid = u.uid ? '✅ Привязана' : '❌ Нет карты';
         
         li.innerHTML = `
             <div style="display:flex;justify-content:space-between;width:100%">
                 <strong>${u.name}</strong>
                 <span style="color:${balColor};font-family:monospace">${u.balance.toFixed(2)} ₽</span>
             </div>
-            <small style="color:var(--mut);margin-top:5px">UID: ${u.uid ? u.uid.substring(0,12)+'...' : 'Не привязана'}</small>
+            <div style="display:flex;justify-content:space-between;width:100%;margin-top:5px">
+                <small style="color:var(--mut)">ID: ${u.id}</small>
+                <small style="color:var(--mut)">${hasUid}</small>
+            </div>
             <div class="u-actions">
-                <button class="u-btn btn-bind" onclick="initRebind('${u.id}')">🔄 Карта</button>
-                <button class="u-btn btn-add" onclick="initTopUp('${u.id}')">➕ Пополнить</button>
+                ${!u.uid ? `<button class="u-btn btn-bind" onclick="initRebind('${u.uuid}')">🔗 Привязать</button>` : ''}
+                <button class="u-btn btn-add" onclick="initTopUp('${u.uuid}')">➕ Пополнить</button>
+                <button class="u-btn btn-del" onclick="deleteUser('${u.uuid}')">🗑 Удалить</button>
             </div>
         `;
         list.appendChild(li);
@@ -256,7 +319,7 @@ function renderTransactions() {
     }
 
     recent.forEach(tx => {
-        const user = users.find(u => u.id === tx.userId);
+        const user = users.find(u => u.uuid === tx.userId);
         const name = user ? user.name : 'Unknown';
         const li = document.createElement('li');
         li.className = 'list-item';
@@ -272,63 +335,144 @@ function renderTransactions() {
 }
 
 // --- PAYMENT LOGIC ---
-function startPayment() {
+function startPaymentByCard() {
     const amtInput = document.getElementById('pay-amount');
     const amount = parseFloat(amtInput.value);
+    if(!amount || amount <= 0) return alert("Введите сумму!");
     
-    if(!amount || amount <= 0) return alert("Введите корректную сумму!");
-    
-    currentMode = 'payment';
+    currentMode = 'pay_card';
     pendingAmount = amount;
     openScanModal();
 }
 
+function startPaymentByID() {
+    const amtInput = document.getElementById('pay-amount');
+    const amount = parseFloat(amtInput.value);
+    if(!amount || amount <= 0) return alert("Введите сумму!");
+    
+    const idStr = prompt("Введите ID клиента для оплаты:");
+    if(!idStr) return;
+
+    const user = getUserByIdentifier(idStr.trim());
+    if(!user) {
+        playErrorSound();
+        showResult("Ошибка", "Клиент с таким ID не найден.", false);
+        return;
+    }
+
+    processPaymentLogic(user, amount);
+}
+
+function startFindClient() {
+    currentMode = 'find_edit';
+    openScanModal();
+}
+
+// --- TRANSFER LOGIC ---
+function openTransferModal() {
+    document.getElementById('modal-transfer').classList.add('show');
+}
+
+function executeTransfer() {
+    const fromId = document.getElementById('tr-from-id').value.trim();
+    const toId = document.getElementById('tr-to-id').value.trim();
+    const amount = parseFloat(document.getElementById('tr-amount').value);
+
+    if(!fromId || !toId || !amount || amount <= 0) return alert("Заполните все поля корректно.");
+    if(fromId === toId) return alert("Нельзя перевести самому себе.");
+
+    const sender = getUserByIdentifier(fromId);
+    const receiver = getUserByIdentifier(toId);
+
+    if(!sender) return alert("Отправитель не найден.");
+    if(!receiver) return alert("Получатель не найден.");
+    if(sender.balance < amount) return alert("Недостаточно средств у отправителя.");
+
+    // Execute
+    sender.balance -= amount;
+    receiver.balance += amount;
+    
+    // Log transaction (optional, simplified here)
+    transactions.push({ time: Date.now(), amount: amount, userId: sender.uuid, status: 'transfer_out' });
+    transactions.push({ time: Date.now(), amount: amount, userId: receiver.uuid, status: 'transfer_in' });
+
+    saveDB();
+    document.getElementById('modal-transfer').classList.remove('show');
+    playSuccessSound();
+    showResult("Перевод выполнен!", `${fromId} -> ${toId}: ${amount} ₽`, true);
+}
+
 // --- USER MANAGEMENT ---
-async function openAddUserModal() {
-    try {
-        if(window.PublicKeyCredential) {
-             await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Xcortex"},user:{id:new TextEncoder().encode("admin"),name:"admin",displayName:"Admin"},pubKeyCredParams:[{type:"public-key",alg:-7}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required"}}});
+function openAddUserMenu() {
+    document.getElementById('modal-add-choice').classList.add('show');
+}
+
+async function openAddUserForm(withNfc) {
+    addWithNfc = withNfc;
+    document.getElementById('modal-add-choice').classList.remove('show');
+    
+    // Biometric Check for Admin Mode
+    if (!withNfc) {
+        try {
+            if(window.PublicKeyCredential) {
+                 await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Xcortex"},user:{id:new TextEncoder().encode("admin"),name:"admin",displayName:"Admin"},pubKeyCredParams:[{type:"public-key",alg:-7}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required"}}});
+            }
+        } catch(e) {
+             // Ignore for demo
         }
-    } catch(e) {}
+    }
+
+    document.getElementById('uf-title').innerText = withNfc ? "Новый клиент (NFC)" : "Новый клиент (Admin)";
+    document.getElementById('uf-id').placeholder = "ID (оставьте пустым для авто)";
     document.getElementById('modal-user-form').classList.add('show');
 }
 
 function saveNewUser() {
     const name = document.getElementById('uf-name').value.trim();
+    let id = document.getElementById('uf-id').value.trim();
     const bal = parseFloat(document.getElementById('uf-balance').value) || 0;
     
     if(!name) return alert("Введите ФИО!");
+    if(!id) id = generateUniqueId();
+    else if(getUserByIdentifier(id)) return alert("Такой ID уже существует!");
+
+    const newUser = { 
+        uuid: Date.now().toString(), // Internal unique key
+        id: id,                      // Public Identifier
+        name: name, 
+        balance: bal, 
+        uid: null 
+    };
     
-    const newUser = { id: Date.now().toString(), name, balance: bal, uid: null };
     users.push(newUser);
     saveDB();
     
     document.getElementById('modal-user-form').classList.remove('show');
     document.getElementById('uf-name').value = '';
+    document.getElementById('uf-id').value = '';
     document.getElementById('uf-balance').value = '0';
     
-    setTimeout(() => initBind(newUser.id), 300);
-}
-
-function initBind(userId) {
-    currentMode = 'bind';
-    pendingUserId = userId;
-    openScanModal();
-}
-
-function initRebind(userId) {
-    if(confirm("Перепривязать карту? Старая UID будет удалена.")) {
-        const idx = users.findIndex(x => x.id === userId);
-        if(idx !== -1) {
-            users[idx].uid = null;
-            saveDB();
-            initBind(userId);
-        }
+    if(addWithNfc) {
+        setTimeout(() => initBind(newUser.uuid), 300);
+    } else {
+        showResult("Готово!", "Клиент добавлен без карты.", true);
     }
 }
 
-function initTopUp(userId) {
-    const idx = users.findIndex(x => x.id === userId);
+function initBind(userIdInternal) {
+    currentMode = 'bind_new';
+    pendingUserId = userIdInternal;
+    openScanModal();
+}
+
+function initRebind(userIdInternal) {
+    if(confirm("Привязать новую карту?")) {
+        initBind(userIdInternal);
+    }
+}
+
+function initTopUp(userIdInternal) {
+    const idx = users.findIndex(x => x.uuid === userIdInternal);
     if(idx === -1) return;
     
     const curBal = users[idx].balance;
@@ -344,9 +488,17 @@ function initTopUp(userId) {
     }
 }
 
-// --- NFC CORE (FIXED FOR DUPLICATES) ---
+function deleteUser(userIdInternal) {
+    if(confirm("Удалить этого клиента навсегда?")) {
+        users = users.filter(u => u.uuid !== userIdInternal);
+        saveDB();
+        showResult("Удалено", "Клиент удален из базы.", true);
+    }
+}
+
+// --- NFC CORE ---
 function openScanModal() {
-    isProcessing = false; // Reset flag before starting
+    isProcessing = false;
     document.getElementById('modal-scan').classList.add('show');
     startNFCSearch();
 }
@@ -370,28 +522,14 @@ async function startNFCSearch() {
 
     try {
         reader = new NDEFReader();
-        
-        // Слушаем событие нахождения метки
         reader.addEventListener("reading", async ({ serialNumber }) => {
-            // ГЛАВНАЯ ФИКСАЦИЯ: Проверяем флаг перед началом обработки
             if (isProcessing) return; 
-            
-            // Блокируем дальнейшие срабатывания немедленно
             isProcessing = true; 
             
-            console.log("Tag detected:", serialNumber);
+            try { await reader.stop(); } catch(e){}
             
-            // Пытаемся остановить сканер, чтобы он больше не триггерил событие
-            try {
-                await reader.stop();
-            } catch(e) {
-                console.warn("Stop failed", e);
-            }
-            
-            // Теперь безопасно обрабатываем данные
             processTagFound(serialNumber);
         });
-
         await reader.scan();
     } catch (err) {
         console.error(err);
@@ -402,24 +540,23 @@ async function startNFCSearch() {
 
 async function stopScanner() {
     if(reader) {
-        try { 
-            await reader.stop(); 
-        } catch(e){}
+        try { await reader.stop(); } catch(e){}
         reader = null;
     }
-    isProcessing = false; // Сбрасываем флаг при остановке вручную
+    isProcessing = false;
 }
 
 function processTagFound(uid) {
     document.getElementById('modal-scan').classList.remove('show');
     
-    if(currentMode === 'payment') {
-        handlePayment(uid, pendingAmount);
-    } else if (currentMode === 'bind') {
+    if(currentMode === 'pay_card') {
+        handlePaymentByUid(uid, pendingAmount);
+    } else if (currentMode === 'bind_new' || currentMode === 'rebind') {
         handleBinding(uid);
+    } else if (currentMode === 'find_edit') {
+        handleFindAndEdit(uid);
     }
     
-    // После завершения операции сбрасываем состояние
     currentMode = 'idle';
     pendingUserId = null;
     isProcessing = false; 
@@ -427,9 +564,9 @@ function processTagFound(uid) {
 
 function handleBinding(uid) {
     if(!pendingUserId) return;
-    const idx = users.findIndex(x => x.id === pendingUserId);
+    const idx = users.findIndex(x => x.uuid === pendingUserId);
     if(idx !== -1) {
-        const existing = users.find(x => x.uid === uid && x.id !== pendingUserId);
+        const existing = users.find(x => x.uid === uid && x.uuid !== pendingUserId);
         if(existing) {
             showResult("Конфликт карт", `Эта карта уже у: ${existing.name}`, false);
             return;
@@ -440,15 +577,17 @@ function handleBinding(uid) {
     }
 }
 
-function handlePayment(uid, amount) {
-    const user = users.find(x => x.uid === uid);
-    
+function handlePaymentByUid(uid, amount) {
+    const user = getUserByUid(uid);
     if(!user) {
         playErrorSound();
-        showResult("Карта неизвестна", "Обратитесь к админу для регистрации.", false);
+        showResult("Карта неизвестна", "Обратитесь к админу.", false);
         return;
     }
-    
+    processPaymentLogic(user, amount);
+}
+
+function processPaymentLogic(user, amount) {
     if(user.balance < amount) {
         playErrorSound();
         const diff = amount - user.balance;
@@ -456,14 +595,54 @@ function handlePayment(uid, amount) {
         return;
     }
     
-    // Success
     user.balance -= amount;
-    transactions.push({ time: Date.now(), amount, userId: user.id, status: 'success' });
+    transactions.push({ time: Date.now(), amount, userId: user.uuid, status: 'success' });
     saveDB();
     
     playSuccessSound(); 
     showResult("Оплата успешна!", `${user.name}: -${amount} ₽\nОстаток: ${user.balance.toFixed(2)} ₽`, true);
     document.getElementById('pay-amount').value = '';
+}
+
+function handleFindAndEdit(uid) {
+    const user = getUserByUid(uid);
+    if(!user) {
+        showResult("Не найдено", "Карта не зарегистрирована в системе.", false);
+        return;
+    }
+    
+    // Open Edit Modal
+    document.getElementById('ec-uid-display').innerText = uid;
+    document.getElementById('ec-name').value = user.name;
+    document.getElementById('ec-id').value = user.id;
+    document.getElementById('ec-balance').value = user.balance;
+    
+    // Store context for saving
+    window._editingUserUuid = user.uuid;
+    
+    document.getElementById('modal-edit-client').classList.add('show');
+}
+
+function saveEditedClient() {
+    const uuid = window._editingUserUuid;
+    const idx = users.findIndex(u => u.uuid === uuid);
+    if(idx === -1) return;
+
+    const newName = document.getElementById('ec-name').value.trim();
+    const newId = document.getElementById('ec-id').value.trim();
+    const newBal = parseFloat(document.getElementById('ec-balance').value);
+
+    if(!newName) return alert("Имя обязательно");
+    if(newId && newId !== users[idx].id && getUserByIdentifier(newId)) return alert("ID занят другим клиентом");
+    if(isNaN(newBal)) return alert("Неверный баланс");
+
+    users[idx].name = newName;
+    users[idx].id = newId;
+    users[idx].balance = newBal;
+    
+    saveDB();
+    document.getElementById('modal-edit-client').classList.remove('show');
+    showResult("Обновлено", "Данные клиента изменены.", true);
 }
 
 // --- FEEDBACK ---
@@ -477,7 +656,7 @@ function showResult(title, desc, isSuccess) {
     document.getElementById('res-title').innerText = title;
     document.getElementById('res-desc').innerText = desc;
     modal.classList.add('show');
-}
-</script>
+        }
+</script> <!-- Замени на инлайн скрипт ниже -->
 </body>
 </html>
