@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Xcortex | POS Terminal</title>
+<style>
+:root{--bg:#0f1115;--card:#1a1d23;--border:#2d3139;--acc:#0fb3a6;--danger:#ff5a2c;--txt:#fff;--mut:#8b9bb4}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:60px;overflow-x:hidden}
+
+/* Header & Tabs */
+.header{width:100%;max-width:500px;padding:15px;background:var(--card);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+.logo{font-weight:800;font-size:1.2rem;color:var(--acc);letter-spacing:-0.5px}
+.tabs{display:flex;gap:10px;width:100%;max-width:500px;background:var(--card);padding:10px;border-radius:12px;margin-top:10px;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+.tab-btn{flex:1;padding:12px;border:none;background:transparent;color:var(--mut);font-weight:600;cursor:pointer;border-radius:8px;transition:.2s;font-size:.9rem}
+.tab-btn.active{background:rgba(15,179,166,.15);color:var(--acc);box-shadow:inset 0 0 0 1px rgba(15,179,166,.3)}
+
+.container{width:100%;max-width:500px;padding:15px;flex:1}
+.panel{display:none}.panel.act{display:block;animation:fadeIn .3s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* Main Payment Card */
+.pay-card{background:linear-gradient(145deg,#1e2229,#15181e);border:1px solid var(--border);border-radius:20px;padding:25px;text-align:center;margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.amount-label{color:var(--mut);font-size:.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.amount-input{font-size:3rem;background:transparent;border:none;color:var(--txt);text-align:center;width:100%;outline:none;font-weight:bold;font-family:monospace;margin-bottom:15px}
+.btn-pay{width:100%;padding:18px;background:linear-gradient(135deg,var(--acc),#00c6ff);border:none;border-radius:14px;color:#000;font-weight:800;font-size:1.1rem;cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:1px;box-shadow:0 5px 15px rgba(15,179,166,.3)}
+.btn-pay:active{transform:scale(.98)}
+
+/* Lists */
+.section-title{margin:20px 0 10px;font-size:1rem;color:var(--mut);display:flex;justify-content:space-between;align-items:center}
+.list-item{background:var(--card);border:1px solid var(--border);padding:15px;border-radius:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;transition:.2s}
+.list-item:hover{border-color:var(--acc)}
+.item-info strong{display:block;font-size:1rem;margin-bottom:2px}
+.item-info small{color:var(--mut);font-size:.75rem}
+.item-amt{font-weight:bold;font-family:monospace;font-size:1.1rem}
+.amt-pos{color:var(--acc)}.amt-neg{color:var(--danger)}
+
+/* Admin Actions */
+.u-actions{display:flex;gap:8px;margin-top:10px}
+.u-btn{flex:1;padding:8px;border:none;border-radius:8px;font-size:.8rem;cursor:pointer;font-weight:600;transition:.2s}
+.btn-bind{background:rgba(255,90,44,.1);color:var(--danger);border:1px solid rgba(255,90,44,.3)}
+.btn-add{background:rgba(15,179,166,.1);color:var(--acc);border:1px solid rgba(15,179,166,.3)}
+.u-btn:active{transform:scale(.95)}
+
+/* FAB */
+.fab{position:fixed;bottom:25px;right:25px;width:60px;height:60px;background:var(--acc);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#000;box-shadow:0 5px 20px rgba(15,179,166,.4);cursor:pointer;z-index:20;border:none;transition:.3s}
+.fab:active{transform:scale(.9) rotate(90deg)}
+
+/* Modals */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;display:none;justify-content:center;align-items:center;backdrop-filter:blur(8px);padding:20px}
+.modal-overlay.show{display:flex}
+.m-box{background:var(--card);border:1px solid var(--border);padding:25px;border-radius:20px;width:100%;max-width:350px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.5);animation:popIn .3s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.spinner{width:50px;height:50px;border:4px solid var(--border);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.m-title{font-size:1.3rem;font-weight:700;margin-bottom:10px;color:var(--txt)}
+.m-text{color:var(--mut);margin-bottom:20px;line-height:1.5;font-size:.95rem}
+.m-input{width:100%;background:rgba(0,0,0,.2);border:1px solid var(--border);color:#fff;padding:14px;border-radius:10px;margin-bottom:12px;font-size:1rem;text-align:center;outline:none}
+.m-input:focus{border-color:var(--acc)}
+.m-btn{width:100%;padding:14px;border:none;border-radius:10px;font-weight:700;cursor:pointer;margin-top:5px;font-size:1rem;transition:.2s}
+.m-btn-pri{background:var(--acc);color:#000}
+.m-btn-sec{background:transparent;border:1px solid var(--border);color:var(--mut)}
+.m-btn-danger{background:var(--danger);color:#fff}
+.icon-big{font-size:4rem;margin-bottom:15px;display:block}
+.icon-success{color:var(--acc)}
+.icon-error{color:var(--danger)}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">XCORTEX POS</div>
+    <div style="font-size:.8rem;color:var(--mut)">Secure NFC</div>
+</div>
+
+<div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('main')">💳 Оплата</button>
+    <button class="tab-btn" onclick="switchTab('admin')">⚙️ База</button>
+</div>
+
+<!-- MAIN PANEL -->
+<div id="p-main" class="container panel act">
+    <div class="pay-card">
+        <div class="amount-label">Сумма к оплате</div>
+        <input type="number" id="pay-amount" class="amount-input" placeholder="0.00" inputmode="decimal">
+        <button class="btn-pay" onclick="startPayment()">Приложить карту</button>
+    </div>
+    
+    <div class="section-title">История операций</div>
+    <ul id="tx-history" style="list-style:none"></ul>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="p-admin" class="container panel">
+    <div class="section-title">Клиенты (<span id="user-count">0</span>)</div>
+    <ul id="user-list" style="list-style:none"></ul>
+</div>
+
+<button class="fab" onclick="openAddUserModal()">+</button>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-scan">
+    <div class="m-box">
+        <div class="spinner"></div>
+        <div class="m-title">Поиск метки...</div>
+        <div class="m-text">Приложите карту или брелок<br>к задней панели телефона.</div>
+        <button class="m-btn m-btn-sec" onclick="closeScanModal(false)">Отмена</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-result">
+    <div class="m-box">
+        <span id="res-icon" class="icon-big icon-success">✅</span>
+        <div id="res-title" class="m-title">Успешно</div>
+        <div id="res-desc" class="m-text">Транзакция завершена.</div>
+        <button class="m-btn m-btn-pri" onclick="document.getElementById('modal-result').classList.remove('show')">Закрыть</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-user-form">
+    <div class="m-box">
+        <div class="m-title">Новый клиент</div>
+        <input type="text" id="uf-name" class="m-input" placeholder="ФИО клиента">
+        <input type="number" id="uf-balance" class="m-input" placeholder="Начальный баланс" value="0">
+        <button class="m-btn m-btn-pri" onclick="saveNewUser()">Сохранить и привязать</button>
+        <button class="m-btn m-btn-sec" onclick="document.getElementById('modal-user-form').classList.remove('show')">Отмена</button>
+    </div>
+</div>
+
+<script>
+// --- STATE ---
+let users = JSON.parse(localStorage.getItem('xc_users')) || [];
+let transactions = JSON.parse(localStorage.getItem('xc_tx')) || [];
+let currentMode = 'idle'; // idle, payment, bind
+let pendingUserId = null;
+let pendingAmount = 0;
+let reader = null;
+let audioCtx = null;
+
+// --- INIT ---
+window.onload = () => {
+    renderUsers();
+    renderTransactions();
+};
+
+function saveDB() {
+    localStorage.setItem('xc_users', JSON.stringify(users));
+    localStorage.setItem('xc_tx', JSON.stringify(transactions));
+    renderUsers();
+    renderTransactions();
+}
+
+// --- AUDIO SYSTEM (Apple Pay Sound Synthesis) ---
+function playSuccessSound() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const t = audioCtx.currentTime;
+    
+    // Create oscillators for a pleasant chime
+    const osc1 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(880, t); // A5
+    osc1.frequency.exponentialRampToValueAtTime(1760, t + 0.1); // Octave up
+    gain1.gain.setValueAtTime(0.1, t);
+    gain1.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc1.start(t);
+    osc1.stop(t + 0.3);
+
+    const osc2 = audioCtx.createOscillator();
+    const gain2 = audioCtx.createGain();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(1320, t + 0.05); // E6
+    gain2.gain.setValueAtTime(0.1, t + 0.05);
+    gain2.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+    osc2.connect(gain2);
+    gain2.connect(audioCtx.destination);
+    osc2.start(t + 0.05);
+    osc2.stop(t + 0.4);
+}
+
+function playErrorSound() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(150, t);
+    osc.frequency.linearRampToValueAtTime(100, t + 0.2);
+    gain.gain.setValueAtTime(0.1, t);
+    gain.gain.linearRampToValueAtTime(0, t + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + 0.3);
+}
+
+// --- UI NAVIGATION ---
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('act'));
+    
+    if(tab === 'main') {
+        document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+        document.getElementById('p-main').classList.add('act');
+    } else {
+        document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+        document.getElementById('p-admin').classList.add('act');
+    }
+}
+
+// --- RENDERING ---
+function renderUsers() {
+    const list = document.getElementById('user-list');
+    const count = document.getElementById('user-count');
+    list.innerHTML = '';
+    count.innerText = users.length;
+
+    if(users.length === 0) {
+        list.innerHTML = '<li style="text-align:center;color:var(--mut);padding:20px">Нет клиентов</li>';
+        return;
+    }
+
+    users.forEach(u => {
+        const li = document.createElement('li');
+        li.className = 'list-item';
+        li.style.flexDirection = 'column';
+        li.style.alignItems = 'stretch';
+        
+        const balColor = u.balance > 0 ? 'var(--acc)' : 'var(--danger)';
+        
+        li.innerHTML = `
+            <div style="display:flex;justify-content:space-between;width:100%">
+                <strong>${u.name}</strong>
+                <span style="color:${balColor};font-family:monospace">${u.balance.toFixed(2)} ₽</span>
+            </div>
+            <small style="color:var(--mut);margin-top:5px">UID: ${u.uid ? u.uid.substring(0,12)+'...' : 'Не привязана'}</small>
+            <div class="u-actions">
+                <button class="u-btn btn-bind" onclick="initRebind('${u.id}')">🔄 Карта</button>
+                <button class="u-btn btn-add" onclick="initTopUp('${u.id}')">➕ Пополнить</button>
+            </div>
+        `;
+        list.appendChild(li);
+    });
+}
+
+function renderTransactions() {
+    const list = document.getElementById('tx-history');
+    list.innerHTML = '';
+    const recent = [...transactions].reverse().slice(0, 10);
+    
+    if(recent.length === 0) {
+        list.innerHTML = '<li style="text-align:center;color:var(--mut);padding:10px">Нет операций</li>';
+        return;
+    }
+
+    recent.forEach(tx => {
+        const user = users.find(u => u.id === tx.userId);
+        const name = user ? user.name : 'Unknown';
+        const li = document.createElement('li');
+        li.className = 'list-item';
+        li.innerHTML = `
+            <div class="item-info">
+                <strong>${name}</strong>
+                <small>${new Date(tx.time).toLocaleTimeString()}</small>
+            </div>
+            <div class="item-amt amt-neg">-${tx.amount} ₽</div>
+        `;
+        list.appendChild(li);
+    });
+}
+
+// --- PAYMENT LOGIC ---
+function startPayment() {
+    const amtInput = document.getElementById('pay-amount');
+    const amount = parseFloat(amtInput.value);
+    
+    if(!amount || amount <= 0) return alert("Введите корректную сумму!");
+    
+    currentMode = 'payment';
+    pendingAmount = amount;
+    openScanModal();
+}
+
+// --- USER MANAGEMENT ---
+async function openAddUserModal() {
+    try {
+        if(window.PublicKeyCredential) {
+             await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Xcortex"},user:{id:new TextEncoder().encode("admin"),name:"admin",displayName:"Admin"},pubKeyCredParams:[{type:"public-key",alg:-7}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required"}}});
+        }
+    } catch(e) {
+         // Ignore biometric failure for demo purposes
+    }
+    document.getElementById('modal-user-form').classList.add('show');
+}
+
+function saveNewUser() {
+    const name = document.getElementById('uf-name').value.trim();
+    const bal = parseFloat(document.getElementById('uf-balance').value) || 0;
+    
+    if(!name) return alert("Введите ФИО!");
+    
+    const newUser = { id: Date.now().toString(), name, balance: bal, uid: null };
+    users.push(newUser);
+    saveDB();
+    
+    document.getElementById('modal-user-form').classList.remove('show');
+    document.getElementById('uf-name').value = '';
+    document.getElementById('uf-balance').value = '0';
+    
+    setTimeout(() => initBind(newUser.id), 300);
+}
+
+function initBind(userId) {
+    currentMode = 'bind';
+    pendingUserId = userId;
+    openScanModal();
+}
+
+function initRebind(userId) {
+    if(confirm("Перепривязать карту? Старая UID будет удалена.")) {
+        const idx = users.findIndex(x => x.id === userId);
+        if(idx !== -1) {
+            users[idx].uid = null;
+            saveDB();
+            initBind(userId);
+        }
+    }
+}
+
+function initTopUp(userId) {
+    const idx = users.findIndex(x => x.id === userId);
+    if(idx === -1) return;
+    
+    const curBal = users[idx].balance;
+    const addStr = prompt(`Текущий баланс: ${curBal}\nСколько начислить?`, "100");
+    
+    if(addStr !== null && !isNaN(parseFloat(addStr))) {
+        const val = parseFloat(addStr);
+        if(val > 0) {
+            users[idx].balance += val;
+            saveDB();
+            showResult("Баланс пополнен!", `${users[idx].name}: +${val} ₽`, true);
+        }
+    }
+}
+
+// --- NFC CORE ---
+function openScanModal() {
+    document.getElementById('modal-scan').classList.add('show');
+    startNFCSearch();
+}
+
+function closeScanModal(success) {
+    document.getElementById('modal-scan').classList.remove('show');
+    stopScanner();
+    if(!success) {
+        currentMode = 'idle';
+        pendingUserId = null;
+    }
+}
+
+async function startNFCSearch() {
+    if(!('NDEFReader' in window)) {
+        showResult("Ошибка", "Web NFC не поддерживается.", false);
+        closeScanModal(false);
+        return;
+    }
+
+    try {
+        reader = new NDEFReader();
+        reader.addEventListener("reading", async ({ serialNumber }) => {
+            await stopScanner();
+            processTagFound(serialNumber);
+        });
+        await reader.scan();
+    } catch (err) {
+        console.error(err);
+        showResult("Ошибка сканера", err.message, false);
+        closeScanModal(false);
+    }
+}
+
+async function stopScanner() {
+    if(reader) try { await reader.stop(); } catch(e){}
+    reader = null;
+}
+
+function processTagFound(uid) {
+    document.getElementById('modal-scan').classList.remove('show');
+    
+    if(currentMode === 'payment') {
+        handlePayment(uid, pendingAmount);
+    } else if (currentMode === 'bind') {
+        handleBinding(uid);
+    }
+}
+
+function handleBinding(uid) {
+    if(!pendingUserId) return;
+    const idx = users.findIndex(x => x.id === pendingUserId);
+    if(idx !== -1) {
+        const existing = users.find(x => x.uid === uid && x.id !== pendingUserId);
+        if(existing) {
+            showResult("Конфликт карт", `Эта карта уже у: ${existing.name}`, false);
+            return;
+        }
+        users[idx].uid = uid;
+        saveDB();
+        showResult("Готово!", "Карта успешно привязана.", true);
+    }
+    currentMode = 'idle';
+    pendingUserId = null;
+}
+
+function handlePayment(uid, amount) {
+    const user = users.find(x => x.uid === uid);
+    
+    if(!user) {
+        playErrorSound();
+        showResult("Карта неизвестна", "Обратитесь к админу для регистрации.", false);
+        return;
+    }
+    
+    if(user.balance < amount) {
+        playErrorSound();
+        const diff = amount - user.balance;
+        showResult("Недостаточно средств", `Не хватает: ${diff.toFixed(2)} ₽`, false);
+        return;
+    }
+    
+    // Success
+    user.balance -= amount;
+    transactions.push({ time: Date.now(), amount, userId: user.id, status: 'success' });
+    saveDB();
+    
+    playSuccessSound(); // Play Apple Pay sound
+    showResult("Оплата успешна!", `${user.name}: -${amount} ₽\nОстаток: ${user.balance.toFixed(2)} ₽`, true);
+    document.getElementById('pay-amount').value = '';
+}
+
+// --- FEEDBACK ---
+function showResult(title, desc, isSuccess) {
+    const modal = document.getElementById('modal-result');
+    const icon = document.getElementById('res-icon');
+    
+    icon.innerText = isSuccess ? "✅" : "❌";
+    icon.className = isSuccess ? "icon-big icon-success" : "icon-big icon-error";
+    
+    document.getElementById('res-title').innerText = title;
+    document.getElementById('res-desc').innerText = desc;
+    modal.classList.add('show');
+}
+</script>
+</body>
+</html>
