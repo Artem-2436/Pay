@@ -136,6 +136,7 @@ let pendingUserId = null;
 let pendingAmount = 0;
 let reader = null;
 let audioCtx = null;
+let isProcessing = false; // НОВЫЙ ФЛАГ ДЛЯ ЗАЩИТЫ ОТ ДУБЛЕЙ
 
 // --- INIT ---
 window.onload = () => {
@@ -150,17 +151,16 @@ function saveDB() {
     renderTransactions();
 }
 
-// --- AUDIO SYSTEM (Apple Pay Sound Synthesis) ---
+// --- AUDIO SYSTEM ---
 function playSuccessSound() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const t = audioCtx.currentTime;
     
-    // Create oscillators for a pleasant chime
     const osc1 = audioCtx.createOscillator();
     const gain1 = audioCtx.createGain();
     osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(880, t); // A5
-    osc1.frequency.exponentialRampToValueAtTime(1760, t + 0.1); // Octave up
+    osc1.frequency.setValueAtTime(880, t); 
+    osc1.frequency.exponentialRampToValueAtTime(1760, t + 0.1); 
     gain1.gain.setValueAtTime(0.1, t);
     gain1.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
     osc1.connect(gain1);
@@ -171,7 +171,7 @@ function playSuccessSound() {
     const osc2 = audioCtx.createOscillator();
     const gain2 = audioCtx.createGain();
     osc2.type = 'triangle';
-    osc2.frequency.setValueAtTime(1320, t + 0.05); // E6
+    osc2.frequency.setValueAtTime(1320, t + 0.05); 
     gain2.gain.setValueAtTime(0.1, t + 0.05);
     gain2.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
     osc2.connect(gain2);
@@ -289,9 +289,7 @@ async function openAddUserModal() {
         if(window.PublicKeyCredential) {
              await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Xcortex"},user:{id:new TextEncoder().encode("admin"),name:"admin",displayName:"Admin"},pubKeyCredParams:[{type:"public-key",alg:-7}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required"}}});
         }
-    } catch(e) {
-         // Ignore biometric failure for demo purposes
-    }
+    } catch(e) {}
     document.getElementById('modal-user-form').classList.add('show');
 }
 
@@ -346,8 +344,9 @@ function initTopUp(userId) {
     }
 }
 
-// --- NFC CORE ---
+// --- NFC CORE (FIXED FOR DUPLICATES) ---
 function openScanModal() {
+    isProcessing = false; // Reset flag before starting
     document.getElementById('modal-scan').classList.add('show');
     startNFCSearch();
 }
@@ -358,6 +357,7 @@ function closeScanModal(success) {
     if(!success) {
         currentMode = 'idle';
         pendingUserId = null;
+        isProcessing = false;
     }
 }
 
@@ -370,10 +370,28 @@ async function startNFCSearch() {
 
     try {
         reader = new NDEFReader();
+        
+        // Слушаем событие нахождения метки
         reader.addEventListener("reading", async ({ serialNumber }) => {
-            await stopScanner();
+            // ГЛАВНАЯ ФИКСАЦИЯ: Проверяем флаг перед началом обработки
+            if (isProcessing) return; 
+            
+            // Блокируем дальнейшие срабатывания немедленно
+            isProcessing = true; 
+            
+            console.log("Tag detected:", serialNumber);
+            
+            // Пытаемся остановить сканер, чтобы он больше не триггерил событие
+            try {
+                await reader.stop();
+            } catch(e) {
+                console.warn("Stop failed", e);
+            }
+            
+            // Теперь безопасно обрабатываем данные
             processTagFound(serialNumber);
         });
+
         await reader.scan();
     } catch (err) {
         console.error(err);
@@ -383,8 +401,13 @@ async function startNFCSearch() {
 }
 
 async function stopScanner() {
-    if(reader) try { await reader.stop(); } catch(e){}
-    reader = null;
+    if(reader) {
+        try { 
+            await reader.stop(); 
+        } catch(e){}
+        reader = null;
+    }
+    isProcessing = false; // Сбрасываем флаг при остановке вручную
 }
 
 function processTagFound(uid) {
@@ -395,6 +418,11 @@ function processTagFound(uid) {
     } else if (currentMode === 'bind') {
         handleBinding(uid);
     }
+    
+    // После завершения операции сбрасываем состояние
+    currentMode = 'idle';
+    pendingUserId = null;
+    isProcessing = false; 
 }
 
 function handleBinding(uid) {
@@ -410,8 +438,6 @@ function handleBinding(uid) {
         saveDB();
         showResult("Готово!", "Карта успешно привязана.", true);
     }
-    currentMode = 'idle';
-    pendingUserId = null;
 }
 
 function handlePayment(uid, amount) {
@@ -435,7 +461,7 @@ function handlePayment(uid, amount) {
     transactions.push({ time: Date.now(), amount, userId: user.id, status: 'success' });
     saveDB();
     
-    playSuccessSound(); // Play Apple Pay sound
+    playSuccessSound(); 
     showResult("Оплата успешна!", `${user.name}: -${amount} ₽\nОстаток: ${user.balance.toFixed(2)} ₽`, true);
     document.getElementById('pay-amount').value = '';
 }
